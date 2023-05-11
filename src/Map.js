@@ -11,7 +11,7 @@ mapboxgl.accessToken =
 const Map = () => {
   const options = [
     {
-      name: 'Population',
+      name: '도로 파손 정도',
       description: 'Estimated total population',
       property: 'pop_est',
       stops: [
@@ -27,24 +27,7 @@ const Map = () => {
       ]
     },
 
-    // "pop_est": 11862740,
-    // "gdp_md_est": 17500,
-    {
-      name: 'GDP',
-      description: 'Estimate total GDP in millions of dollars',
-      property: 'gdp_md_est',
-      stops: [
-        [0, '#f8d5cc'],
-        [3, '#f4bfb6'],
-        [5, '#f1a8a5'],
-        [7, '#ee8f9a'],
-        [9, '#ec739b'],
-        [12, '#dd5ca8'],
-        [15, '#c44cc0'],
-        [18, '#9f43d7'],
-        [20, '#6e40e6']
-      ]
-    }
+    // "pop_est": 11862740,s
   ];
   const mapContainerRef = useRef(null);
   const [active, setActive] = useState(options[0]);
