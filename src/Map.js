@@ -6,7 +6,7 @@ import './Map.css';
 import data from './data.json';
 
 mapboxgl.accessToken =
-  'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA';
+  'pk.eyJ1IjoibWktZmFzb2wiLCJhIjoiY2xoN3U1ZmNxMDI2eTNybzFlM2doc2M4ayJ9.GcTJmgh7OQSyiwlJ7nl38A';
 
 const Map = () => {
   const options = [
@@ -16,30 +16,33 @@ const Map = () => {
       property: 'pop_est',
       stops: [
         [0, '#f8d5cc'],
-        [1000000, '#f4bfb6'],
-        [5000000, '#f1a8a5'],
-        [10000000, '#ee8f9a'],
-        [50000000, '#ec739b'],
-        [100000000, '#dd5ca8'],
-        [250000000, '#c44cc0'],
-        [500000000, '#9f43d7'],
-        [1000000000, '#6e40e6']
+        [3, '#f4bfb6'],
+        [5, '#f1a8a5'],
+        [7, '#ee8f9a'],
+        [9, '#ec739b'],
+        [12, '#dd5ca8'],
+        [15, '#c44cc0'],
+        [18, '#9f43d7'],
+        [20, '#6e40e6']
       ]
     },
+
+    // "pop_est": 11862740,
+    // "gdp_md_est": 17500,
     {
       name: 'GDP',
       description: 'Estimate total GDP in millions of dollars',
       property: 'gdp_md_est',
       stops: [
         [0, '#f8d5cc'],
-        [1000, '#f4bfb6'],
-        [5000, '#f1a8a5'],
-        [10000, '#ee8f9a'],
-        [50000, '#ec739b'],
-        [100000, '#dd5ca8'],
-        [250000, '#c44cc0'],
-        [5000000, '#9f43d7'],
-        [10000000, '#6e40e6']
+        [3, '#f4bfb6'],
+        [5, '#f1a8a5'],
+        [7, '#ee8f9a'],
+        [9, '#ec739b'],
+        [12, '#dd5ca8'],
+        [15, '#c44cc0'],
+        [18, '#9f43d7'],
+        [20, '#6e40e6']
       ]
     }
   ];
@@ -47,13 +50,12 @@ const Map = () => {
   const [active, setActive] = useState(options[0]);
   const [map, setMap] = useState(null);
 
-  // Initialize map when component mounts
   useEffect(() => {
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
       style: 'mapbox://styles/mapbox/streets-v11',
-      center: [5, 34],
-      zoom: 1.5
+      center: [127.0016958, 37.5642135],
+      zoom: 10.0
     });
 
     map.on('load', () => {
@@ -95,7 +97,6 @@ const Map = () => {
       setMap(map);
     });
 
-    // Clean up on unmount
     return () => map.remove();
   }, []);
 
