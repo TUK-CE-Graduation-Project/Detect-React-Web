@@ -14,7 +14,7 @@ const Map = () => {
   const options = [
     {
       name: '도로 파손 정도',
-      description: 'Estimated total population',
+      description: '도로 파손 개수에 따른 지표',
       property: 'pothole',
       stops: [
         [0, '#f8d5cc'],
@@ -82,6 +82,17 @@ const Map = () => {
       setMap(map);
     });
 
+  //   map.on('click', 'countries', (e) => {
+  //     const features = map.queryRenderedFeatures(e.point, {layers: ['countires']
+    
+  //   });
+  //   if(features.length > 0){
+  //     const clickedFeature = features[0];
+  //     const potholeValue = clickedFeature.properties.pothole;
+
+  //     console.log(`Clicked feature's pothole value: ${potholeValue}`);
+  //   }
+  //   });
     return () => map.remove();
   }, []);
 
