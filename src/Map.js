@@ -8,12 +8,14 @@ import data from './data.json';
 mapboxgl.accessToken =
   'pk.eyJ1IjoibWktZmFzb2wiLCJhIjoiY2xoN3U1ZmNxMDI2eTNybzFlM2doc2M4ayJ9.GcTJmgh7OQSyiwlJ7nl38A';
 
+const HTTP_URL = "http://localhost:8080/api/pothole";
+
 const Map = () => {
   const options = [
     {
       name: '도로 파손 정도',
       description: 'Estimated total population',
-      property: 'pop_est',
+      property: 'pothole',
       stops: [
         [0, '#f8d5cc'],
         [3, '#f4bfb6'],
@@ -116,5 +118,16 @@ const Map = () => {
     </div>
   );
 };
+
+// function fetchData(){
+//   return fetch(HTTP_URL)
+//   .then(response => {
+//     return response.json();
+//   })
+//   .then(data => {
+//     return data
+//   })
+//   .catch(error => console.log(error));
+// }
 
 export default Map;
