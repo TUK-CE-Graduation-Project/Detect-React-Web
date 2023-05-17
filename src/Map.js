@@ -49,50 +49,66 @@ const Map = () => {
         data
       });
 
-      map.setLayoutProperty('country-label', 'text-field', [
-        'format',
-        ['get', 'name_en'],
-        { 'font-scale': 1.2 },
-        '\n',
-        {},
-        ['get', 'name'],
-        {
-          'font-scale': 0.8,
-          'text-font': [
-            'literal',
-            ['DIN Offc Pro Italic', 'Arial Unicode MS Regular']
-          ]
+    //   map.setLayoutProperty('country-label', 'text-field', [
+    //     'format',
+    //     ['get', 'name_en'],
+    //     { 'font-scale': 1.2 },
+    //     '\n',
+    //     {},
+    //     ['get', 'name'],
+    //     {
+    //       'font-scale': 0.8,
+    //       'text-font': [
+    //         'literal',
+    //         ['DIN Offc Pro Italic', 'Arial Unicode MS Regular']
+    //       ]
+    //     }
+    //   ]);
+
+    //   map.addLayer(
+    //     {
+    //       id: 'countries',
+    //       type: 'fill',
+    //       source: 'countries'
+    //     },
+    //     'country-label'
+    //   );
+
+    //   map.setPaintProperty('countries', 'fill-color', {
+    //     property: active.property,
+    //     stops: active.stops
+    //   });
+
+    //   setMap(map);
+    // });
+
+    map.addLayer({
+      id: 'countries',
+      type: 'fill',
+      source: 'countries',
+      paint: {
+        'fill-color': {
+          property: 'pothole',
+          stops: active.stops
         }
-      ]);
+      }
+    });
+  
+    // 클릭 이벤트 리스너 등록
+    map.on('click', 'countries', (e) => {
+      const features = map.queryRenderedFeatures(e.point, { layers: ['countries'] });
 
-      map.addLayer(
-        {
-          id: 'countries',
-          type: 'fill',
-          source: 'countries'
-        },
-        'country-label'
-      );
+      if (features.length > 0) {
+        const clickedFeature = features[0];
+        const potholeValue = clickedFeature.properties.pothole;
 
-      map.setPaintProperty('countries', 'fill-color', {
-        property: active.property,
-        stops: active.stops
-      });
-
-      setMap(map);
+        console.log(`Clicked feature's pothole value: ${potholeValue}`);
+      }
     });
 
-  //   map.on('click', 'countries', (e) => {
-  //     const features = map.queryRenderedFeatures(e.point, {layers: ['countires']
-    
-  //   });
-  //   if(features.length > 0){
-  //     const clickedFeature = features[0];
-  //     const potholeValue = clickedFeature.properties.pothole;
-
-  //     console.log(`Clicked feature's pothole value: ${potholeValue}`);
-  //   }
-  //   });
+    setMap(map);
+  });
+  
     return () => map.remove();
   }, []);
 
