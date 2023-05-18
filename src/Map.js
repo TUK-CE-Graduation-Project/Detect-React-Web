@@ -28,12 +28,21 @@ const Map = () => {
         [20, '#6e40e6']
       ]
     },
-
-    // "pop_est": 11862740,s
   ];
   const mapContainerRef = useRef(null);
   const [active, setActive] = useState(options[0]);
   const [map, setMap] = useState(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [potholeCount, setPotholeCount] = useState(0);
+
+  const openDialog = (count) => {
+    setPotholeCount(count);
+    setDialogOpen(true);
+  };
+
+  const closeDialog = () => {
+    setDialogOpen(false);
+  };
 
   useEffect(() => {
     const map = new mapboxgl.Map({
@@ -44,7 +53,7 @@ const Map = () => {
     });
 
     map.on('load', () => {
-      map.addSource('countries', {
+      map.addSource('region', {
         type: 'geojson',
         data
       });
@@ -67,14 +76,14 @@ const Map = () => {
 
     //   map.addLayer(
     //     {
-    //       id: 'countries',
+    //       id: 'region',
     //       type: 'fill',
-    //       source: 'countries'
+    //       source: 'region'
     //     },
     //     'country-label'
     //   );
 
-    //   map.setPaintProperty('countries', 'fill-color', {
+    //   map.setPaintProperty('region', 'fill-color', {
     //     property: active.property,
     //     stops: active.stops
     //   });
@@ -83,9 +92,9 @@ const Map = () => {
     // });
 
     map.addLayer({
-      id: 'countries',
+      id: 'region',
       type: 'fill',
-      source: 'countries',
+      source: 'region',
       paint: {
         'fill-color': {
           property: 'pothole',
@@ -95,14 +104,14 @@ const Map = () => {
     });
   
     // 클릭 이벤트 리스너 등록
-    map.on('click', 'countries', (e) => {
-      const features = map.queryRenderedFeatures(e.point, { layers: ['countries'] });
+    map.on('click', 'region', (e) => {
+      const features = map.queryRenderedFeatures(e.point, { layers: ['region'] });
 
       if (features.length > 0) {
         const clickedFeature = features[0];
         const potholeValue = clickedFeature.properties.pothole;
-
-        console.log(`Clicked feature's pothole value: ${potholeValue}`);
+        openDialog(potholeValue);
+        console.log(`해당 구역의 포트홀 개수: ${potholeValue}`);
       }
     });
 
@@ -118,7 +127,7 @@ const Map = () => {
 
   const paint = () => {
     if (map) {
-      map.setPaintProperty('countries', 'fill-color', {
+      map.setPaintProperty('region', 'fill-color', {
         property: active.property,
         stops: active.stops
       });
@@ -127,7 +136,7 @@ const Map = () => {
 
   const changeState = i => {
     setActive(options[i]);
-    map.setPaintProperty('countries', 'fill-color', {
+    map.setPaintProperty('region', 'fill-color', {
       property: active.property,
       stops: active.stops
     });
@@ -136,12 +145,21 @@ const Map = () => {
   return (
     <div>
       <div ref={mapContainerRef} className='map-container' />
-      <Legend active={active} stops={active.stops} />
+      {dialogOpen && (
+        <div className="dialog">
+          <div className="dialog-content">
+            <h3>Pothole Count</h3>
+            <p>{potholeCount}</p>
+            <button onClick={closeDialog}>Close</button>
+          </div>
+        </div>
+      )}
+      {/* <Legend active={active} stops={active.stops} />
       <Optionsfield
         options={options}
         property={active.property}
-        changeState={changeState}
-      />
+        changeState={changeState} */}
+      {/* /> */}
     </div>
   );
 };
