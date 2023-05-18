@@ -4,7 +4,6 @@ import Legend from './components/Legend';
 import Optionsfield from './components/Optionsfield';
 import './Map.css';
 import data from './data.json';
-import { name } from 'tar/lib/types';
 
 mapboxgl.accessToken =
   'pk.eyJ1IjoibWktZmFzb2wiLCJhIjoiY2xoN3U1ZmNxMDI2eTNybzFlM2doc2M4ayJ9.GcTJmgh7OQSyiwlJ7nl38A';
@@ -152,6 +151,12 @@ const Map = () => {
   return (
     <div>
       <div ref={mapContainerRef} className='map-container' />
+      <Legend active={active} stops={active.stops} />
+      <Optionsfield
+        options={options}
+        property={active.property}
+        changeState={changeState}
+      />
       {dialogOpen && (
         <div className="dialog-overlay">
           <div className="dialog-content"  style={{ left: dialogPosition.x, top: dialogPosition.y }}>
