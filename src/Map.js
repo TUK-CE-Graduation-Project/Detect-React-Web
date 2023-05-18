@@ -4,6 +4,7 @@ import Legend from './components/Legend';
 import Optionsfield from './components/Optionsfield';
 import './Map.css';
 import data from './data.json';
+import { name } from 'tar/lib/types';
 
 mapboxgl.accessToken =
   'pk.eyJ1IjoibWktZmFzb2wiLCJhIjoiY2xoN3U1ZmNxMDI2eTNybzFlM2doc2M4ayJ9.GcTJmgh7OQSyiwlJ7nl38A';
@@ -34,9 +35,13 @@ const Map = () => {
   const [map, setMap] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [potholeCount, setPotholeCount] = useState(0);
+  const [r_name, setRegionName] = useState(null);
+  const [dialogPosition, setDialogPosition] = useState({ x: 0, y: 0 });
 
-  const openDialog = (count) => {
+  const openDialog = (count, position, r_name) => {
     setPotholeCount(count);
+    setDialogPosition(position);
+    setRegionName(r_name)
     setDialogOpen(true);
   };
 
@@ -110,7 +115,9 @@ const Map = () => {
       if (features.length > 0) {
         const clickedFeature = features[0];
         const potholeValue = clickedFeature.properties.pothole;
-        openDialog(potholeValue);
+        const position = map.unproject(e.point);
+        const r_name = clickedFeature.properties.name;
+          openDialog(potholeValue, position, r_name);
         console.log(`해당 구역의 포트홀 개수: ${potholeValue}`);
       }
     });
@@ -146,20 +153,14 @@ const Map = () => {
     <div>
       <div ref={mapContainerRef} className='map-container' />
       {dialogOpen && (
-        <div className="dialog">
-          <div className="dialog-content">
-            <h3>Pothole Count</h3>
-            <p>{potholeCount}</p>
+        <div className="dialog-overlay">
+          <div className="dialog-content"  style={{ left: dialogPosition.x, top: dialogPosition.y }}>
+            <h3>{r_name}의 도로 현황</h3>
+            <p>도로 파손 개수: {potholeCount}</p>
             <button onClick={closeDialog}>Close</button>
           </div>
         </div>
       )}
-      {/* <Legend active={active} stops={active.stops} />
-      <Optionsfield
-        options={options}
-        property={active.property}
-        changeState={changeState} */}
-      {/* /> */}
     </div>
   );
 };
