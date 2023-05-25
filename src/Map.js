@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, Component } from 'react';
 import mapboxgl from 'mapbox-gl';
 import Legend from './components/Legend';
 import Optionsfield from './components/Optionsfield';
@@ -10,6 +10,45 @@ mapboxgl.accessToken =
 
 const HTTP_URL = "http://localhost:8080/api/pothole";
 
+
+const items = [
+  {
+      url: "https://images.pexels.com/photos/20787/pexels-photo.jpg?auto=compress&cs=tinysrgb&h=350"
+  },
+  {
+      url: "https://images.pexels.com/photos/20787/pexels-photo.jpg?auto=compress&cs=tinysrgb&h=350"
+  },
+  {
+      url: "https://images.pexels.com/photos/20787/pexels-photo.jpg?auto=compress&cs=tinysrgb&h=350"
+  },
+  {
+      url: "https://images.pexels.com/photos/20787/pexels-photo.jpg?auto=compress&cs=tinysrgb&h=350"
+  },
+  {
+      url: "https://images.pexels.com/photos/20787/pexels-photo.jpg?auto=compress&cs=tinysrgb&h=350"
+  },
+  {
+      url: "https://images.pexels.com/photos/20787/pexels-photo.jpg?auto=compress&cs=tinysrgb&h=350"
+  },
+  {
+      url: "https://images.pexels.com/photos/20787/pexels-photo.jpg?auto=compress&cs=tinysrgb&h=350"
+  },
+  {
+      url: "https://images.pexels.com/photos/20787/pexels-photo.jpg?auto=compress&cs=tinysrgb&h=350"
+  },
+  {
+      url: "https://images.pexels.com/photos/20787/pexels-photo.jpg?auto=compress&cs=tinysrgb&h=350"
+  },
+  {
+      url: "https://images.pexels.com/photos/20787/pexels-photo.jpg?auto=compress&cs=tinysrgb&h=350"
+  },
+  {
+      url: "https://images.pexels.com/photos/20787/pexels-photo.jpg?auto=compress&cs=tinysrgb&h=350"
+  },
+  {
+      url: "https://images.pexels.com/photos/20787/pexels-photo.jpg?auto=compress&cs=tinysrgb&h=350"
+  },
+]
 const Map = () => {
   const options = [
     {
@@ -155,12 +194,15 @@ const Map = () => {
         options={options}
         property={active.property}
         changeState={changeState}
-      /> */}
+      /> */} 
       {dialogOpen && (
         <div className="dialog-overlay">
           <div className="dialog-content"  style={{ left: dialogPosition.x, top: dialogPosition.y }}>
             <h3>{r_name}의 도로 현황</h3>
             <p>도로 파손 개수: {potholeCount}</p>
+            {items.map(img =>{
+              return <ImgList url = {img.url}/>
+            })}
             <button className = "dialog-button" onClick={closeDialog}>Close</button>
           </div>
         </div>
@@ -168,6 +210,24 @@ const Map = () => {
     </div>
   );
 };
+
+class ImgList extends Component{
+  render(){
+    return(
+      <div>
+        <PotholeImg url = {this.props.url}/>
+      </div>
+    )
+  }
+}
+
+class PotholeImg extends Component{
+  render(){
+    return(
+      <img src = {this.props.url}/>
+    )
+  }
+}
 
 // function fetchData(){
 //   return fetch(HTTP_URL)
