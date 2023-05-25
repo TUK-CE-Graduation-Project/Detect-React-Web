@@ -8,19 +8,30 @@
 
 .dialog-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
+  width: 20%;
   height: 100%;
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: white;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: top;
+  padding: 20px;
 }
 
 .dialog {
-  color: white;
+  display: flex;
+  justify-content: start;
+  align-items: top;
   background-color: white;
-  padding: 20px;
   border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+h3{
+  font-weight: 900;
+  text-align: center;
+}
+
+.dialog-button{
+  display: flex-end;
+  justify-content: flex-end;
 }

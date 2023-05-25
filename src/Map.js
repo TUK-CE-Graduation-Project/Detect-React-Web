@@ -106,8 +106,7 @@ const Map = () => {
         }
       }
     });
-  
-    // 클릭 이벤트 리스너 등록
+
     map.on('click', 'region', (e) => {
       const features = map.queryRenderedFeatures(e.point, { layers: ['region'] });
 
@@ -152,17 +151,17 @@ const Map = () => {
     <div>
       <div ref={mapContainerRef} className='map-container' />
       <Legend active={active} stops={active.stops} />
-      <Optionsfield
+      {/* <Optionsfield
         options={options}
         property={active.property}
         changeState={changeState}
-      />
+      /> */}
       {dialogOpen && (
         <div className="dialog-overlay">
           <div className="dialog-content"  style={{ left: dialogPosition.x, top: dialogPosition.y }}>
             <h3>{r_name}의 도로 현황</h3>
             <p>도로 파손 개수: {potholeCount}</p>
-            <button onClick={closeDialog}>Close</button>
+            <button className = "dialog-button" onClick={closeDialog}>Close</button>
           </div>
         </div>
       )}
