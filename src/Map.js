@@ -1,52 +1,42 @@
 import React, { useRef, useEffect, useState, Component } from 'react';
 import mapboxgl from 'mapbox-gl';
 import Legend from './components/Legend';
-import Optionsfield from './components/Optionsfield';
 import './Map.css';
-import data from './data.json';
+// import data from './data.json'
+import pImage from './img/pothole.jpeg'
 
 mapboxgl.accessToken =
   'pk.eyJ1IjoibWktZmFzb2wiLCJhIjoiY2xoN3U1ZmNxMDI2eTNybzFlM2doc2M4ayJ9.GcTJmgh7OQSyiwlJ7nl38A';
 
-const HTTP_URL = "http://localhost:8080/api/pothole";
+// json 데이터를 가져 올 API 주소
+const HTTP_URL = "http://15.164.100.67:9090/api/geotab/search/all";
 
-
+// 이미지 GET API가 미완성인 관계로 임시로 더미 데이터 사용
 const items = [
   {
-      url: "https://images.pexels.com/photos/20787/pexels-photo.jpg?auto=compress&cs=tinysrgb&h=350"
+      url: pImage,
   },
   {
-      url: "https://images.pexels.com/photos/20787/pexels-photo.jpg?auto=compress&cs=tinysrgb&h=350"
+    url: pImage,
   },
   {
-      url: "https://images.pexels.com/photos/20787/pexels-photo.jpg?auto=compress&cs=tinysrgb&h=350"
-  },
-  {
-      url: "https://images.pexels.com/photos/20787/pexels-photo.jpg?auto=compress&cs=tinysrgb&h=350"
-  },
-  {
-      url: "https://images.pexels.com/photos/20787/pexels-photo.jpg?auto=compress&cs=tinysrgb&h=350"
-  },
-  {
-      url: "https://images.pexels.com/photos/20787/pexels-photo.jpg?auto=compress&cs=tinysrgb&h=350"
-  },
-  {
-      url: "https://images.pexels.com/photos/20787/pexels-photo.jpg?auto=compress&cs=tinysrgb&h=350"
-  },
-  {
-      url: "https://images.pexels.com/photos/20787/pexels-photo.jpg?auto=compress&cs=tinysrgb&h=350"
-  },
-  {
-      url: "https://images.pexels.com/photos/20787/pexels-photo.jpg?auto=compress&cs=tinysrgb&h=350"
-  },
-  {
-      url: "https://images.pexels.com/photos/20787/pexels-photo.jpg?auto=compress&cs=tinysrgb&h=350"
-  },
-  {
-      url: "https://images.pexels.com/photos/20787/pexels-photo.jpg?auto=compress&cs=tinysrgb&h=350"
-  },
-  {
-      url: "https://images.pexels.com/photos/20787/pexels-photo.jpg?auto=compress&cs=tinysrgb&h=350"
+    url: pImage,
+  },{
+    url: pImage,
+  },{
+    url: pImage,
+  },{
+    url: pImage,
+  },{
+    url: pImage,
+  },{
+    url: pImage,
+  },{
+    url: pImage,
+  },{
+    url: pImage,
+  },{
+    url: pImage,
   },
 ]
 const Map = () => {
@@ -54,17 +44,17 @@ const Map = () => {
     {
       name: '도로 파손 정도',
       description: '도로 파손 개수에 따른 지표',
-      property: 'pothole',
+      property: 'numberOfPothole',
       stops: [
         [0, '#f8d5cc'],
         [3, '#f4bfb6'],
-        [5, '#f1a8a5'],
-        [7, '#ee8f9a'],
-        [9, '#ec739b'],
-        [12, '#dd5ca8'],
-        [15, '#c44cc0'],
-        [18, '#9f43d7'],
-        [20, '#6e40e6']
+        [6, '#f1a8a5'],
+        [9, '#ee8f9a'],
+        [12, '#ec739b'],
+        [15, '#dd5ca8'],
+        [18, '#c44cc0'],
+        [21, '#9f43d7'],
+        [24, '#6e40e6']
       ]
     },
   ];
@@ -88,51 +78,23 @@ const Map = () => {
   };
 
   useEffect(() => {
-    const map = new mapboxgl.Map({
-      container: mapContainerRef.current,
-      style: 'mapbox://styles/mapbox/streets-v11',
-      center: [127.0016958, 37.5642135],
-      zoom: 10.0
-    });
+    const getData = async () => {
+      const jsonData = await fetchData();
+      if (jsonData) {
+        const map = new mapboxgl.Map({
+          container: mapContainerRef.current,
+          style: 'mapbox://styles/mapbox/streets-v11',
+          center: [127.0016958, 37.5642135],
+          zoom: 10.0,
+          
+        });
+        map.on('load', () => {
+          map.addSource('region', {
+            type: 'geojson',
+            data: jsonData.data
+          });
 
-    map.on('load', () => {
-      map.addSource('region', {
-        type: 'geojson',
-        data
-      });
-
-    //   map.setLayoutProperty('country-label', 'text-field', [
-    //     'format',
-    //     ['get', 'name_en'],
-    //     { 'font-scale': 1.2 },
-    //     '\n',
-    //     {},
-    //     ['get', 'name'],
-    //     {
-    //       'font-scale': 0.8,
-    //       'text-font': [
-    //         'literal',
-    //         ['DIN Offc Pro Italic', 'Arial Unicode MS Regular']
-    //       ]
-    //     }
-    //   ]);
-
-    //   map.addLayer(
-    //     {
-    //       id: 'region',
-    //       type: 'fill',
-    //       source: 'region'
-    //     },
-    //     'country-label'
-    //   );
-
-    //   map.setPaintProperty('region', 'fill-color', {
-    //     property: active.property,
-    //     stops: active.stops
-    //   });
-
-    //   setMap(map);
-    // });
+          console.log(getData);
 
     map.addLayer({
       id: 'region',
@@ -140,7 +102,7 @@ const Map = () => {
       source: 'region',
       paint: {
         'fill-color': {
-          property: 'pothole',
+          property: 'numberOfPothole',
           stops: active.stops
         }
       }
@@ -151,19 +113,26 @@ const Map = () => {
 
       if (features.length > 0) {
         const clickedFeature = features[0];
-        const potholeValue = clickedFeature.properties.pothole;
+        const potholeValue = clickedFeature.properties.numberOfPothole;
         const position = map.unproject(e.point);
         const r_name = clickedFeature.properties.name;
           openDialog(potholeValue, position, r_name);
         console.log(`해당 구역의 포트홀 개수: ${potholeValue}`);
       }
     });
+  setMap(map);
+});
+}
+};
 
-    setMap(map);
-  });
-  
-    return () => map.remove();
-  }, []);
+getData();
+
+return () => {
+if (map) {
+map.remove();
+}
+};
+}, []);
 
   useEffect(() => {
     paint();
@@ -190,11 +159,6 @@ const Map = () => {
     <div>
       <div ref={mapContainerRef} className='map-container' />
       <Legend active={active} stops={active.stops} />
-      {/* <Optionsfield
-        options={options}
-        property={active.property}
-        changeState={changeState}
-      /> */} 
       {dialogOpen && (
         <div className="dialog-overlay">
           <div className="dialog-content"  style={{ left: dialogPosition.x, top: dialogPosition.y }}>
@@ -228,16 +192,13 @@ class PotholeImg extends Component{
     )
   }
 }
-
-// function fetchData(){
-//   return fetch(HTTP_URL)
-//   .then(response => {
-//     return response.json();
-//   })
-//   .then(data => {
-//     return data
-//   })
-//   .catch(error => console.log(error));
-// }
-
+async function fetchData() {
+  try {
+    const response = await fetch(HTTP_URL);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.log(error);
+  }
+}
 export default Map;

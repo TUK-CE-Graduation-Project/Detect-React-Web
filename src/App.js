@@ -1,4 +1,3 @@
-
 import Map from './Map';
 import React from 'react'
 
