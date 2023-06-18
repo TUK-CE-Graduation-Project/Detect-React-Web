@@ -78,81 +78,91 @@ const Map = () => {
   };
 
   useEffect(() => {
-    const getData = async () => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(HTTP_URL);
+        const jsonData = await response.json();
+
+        if (jsonData) {
+          return jsonData.data;
+        }
+      } catch (error) {
+        console.error('Failed to fetch GeoJSON data:', error);
+      }
+    };
+
+    const loadMap = async () => {
       const jsonData = await fetchData();
       if (jsonData) {
-        const map = new mapboxgl.Map({
+        const newMap = new mapboxgl.Map({
           container: mapContainerRef.current,
           style: 'mapbox://styles/mapbox/streets-v11',
           center: [127.0016958, 37.5642135],
           zoom: 10.0,
-          
         });
-        map.on('load', () => {
-          map.addSource('region', {
+
+        newMap.on('load', () => {
+          newMap.addSource('region', {
             type: 'geojson',
-            data: jsonData.data
+            data: jsonData,
           });
 
-          console.log(getData);
+          newMap.addLayer({
+            id: 'region',
+            type: 'fill',
+            source: 'region',
+            paint: {
+              'fill-color': {
+                property: 'numberOfPothole',
+                stops: active.stops,
+              },
+            },
+          });
 
-    map.addLayer({
-      id: 'region',
-      type: 'fill',
-      source: 'region',
-      paint: {
-        'fill-color': {
-          property: 'numberOfPothole',
-          stops: active.stops
-        }
+          newMap.on('click', 'region', (e) => {
+            const features = newMap.queryRenderedFeatures(e.point, { layers: ['region'] });
+
+            if (features.length > 0) {
+              const clickedFeature = features[0];
+              const potholeValue = clickedFeature.properties.numberOfPothole;
+              const position = newMap.unproject(e.point);
+              const r_name = clickedFeature.properties.name;
+              openDialog(potholeValue, position, r_name);
+              console.log(`해당 구역의 포트홀 개수: ${potholeValue}`);
+            }
+          });
+
+          setMap(newMap);
+        });
       }
-    });
+    };
 
-    map.on('click', 'region', (e) => {
-      const features = map.queryRenderedFeatures(e.point, { layers: ['region'] });
+    loadMap();
 
-      if (features.length > 0) {
-        const clickedFeature = features[0];
-        const potholeValue = clickedFeature.properties.numberOfPothole;
-        const position = map.unproject(e.point);
-        const r_name = clickedFeature.properties.name;
-          openDialog(potholeValue, position, r_name);
-        console.log(`해당 구역의 포트홀 개수: ${potholeValue}`);
+    return () => {
+      if (map) {
+        map.remove();
       }
-    });
-  setMap(map);
-});
-}
-};
-
-getData();
-
-return () => {
-if (map) {
-map.remove();
-}
-};
-}, []);
-
-  useEffect(() => {
-    paint();
+    };
   }, [active]);
 
-  const paint = () => {
+  useEffect(() => {
     if (map) {
       map.setPaintProperty('region', 'fill-color', {
         property: active.property,
-        stops: active.stops
+        stops: active.stops,
       });
     }
-  };
+  }, [active, map]);
 
-  const changeState = i => {
+  const changeState = (i) => {
     setActive(options[i]);
-    map.setPaintProperty('region', 'fill-color', {
-      property: active.property,
-      stops: active.stops
-    });
+    if (map) {
+      map.setPaintProperty('region', 'fill-color', {
+        property: options[i].property,
+        stops: options[i].stops,
+      });
+    }
   };
 
   return (
@@ -161,11 +171,11 @@ map.remove();
       <Legend active={active} stops={active.stops} />
       {dialogOpen && (
         <div className="dialog-overlay">
-          <div className="dialog-content"  style={{ left: dialogPosition.x, top: dialogPosition.y }}>
+          <div className="dialog-content" style={{ left: dialogPosition.x, top: dialogPosition.y }}>
             <h3>{r_name}의 도로 현황</h3>
             <p>도로 파손 개수: {potholeCount}</p>
-            {items.map(img =>{
-              return <ImgList url = {img.url}/>
+            {items.map((img) => {
+              return <ImgList url={img.url} key={img.url} />;
             })}
             <button className = "dialog-button" onClick={closeDialog}>Close</button>
           </div>
@@ -192,13 +202,5 @@ class PotholeImg extends Component{
     )
   }
 }
-async function fetchData() {
-  try {
-    const response = await fetch(HTTP_URL);
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.log(error);
-  }
-}
+
 export default Map;
