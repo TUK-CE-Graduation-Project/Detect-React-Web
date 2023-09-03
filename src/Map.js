@@ -45,7 +45,7 @@ const Map = () => {
 
   const fetchDataFromAPI = async () => {
   try {
-    const response = await fetch('http://18.207.198.224:8080/api/geotab/search/all', {
+    const response = await fetch('/api/geotab/search/all', {
       method: "GET",
       headers:{
       'Accept': 'application/json',
