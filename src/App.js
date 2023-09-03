@@ -1,4 +1,4 @@
-import Map from './Map';
+import Map from './NewMap';
 import React from 'react'
 
 function App() {

@@ -45,17 +45,13 @@ const Map = () => {
 
   const fetchDataFromAPI = async () => {
   try {
-    const response = await fetch('/api/geotab/search/all', {
-      method: "GET",
-      headers:{
-      'Accept': 'application/json',
-        'Content-Type': 'application/json; charset=utf-8'
-      }
-    } );
-    if (!response.ok) {
+    const res = await fetch('/api/geotab/search/all');
+    const {data} = await res.json();
+
+    if (!res.ok) {
       throw new Error('Failed to fetch data from the API');
     }
-    const data = await response.json();
+
     return data.features; // "data" 부분을 벗겨내서 features 배열 반환
   } catch (error) {
     console.error('Error fetching data:', error);
@@ -66,9 +62,10 @@ const Map = () => {
 const displayDataOnMap = async () => {
   const geojsonData = await fetchDataFromAPI();
 
+  console.log(geojsonData);
+
   if (map && geojsonData.length > 0) {
-    // GeoJSON 데이터를 지도에 추가
-    map.addSource('custom-data', {
+    map.addSource('region', {
       type: 'geojson',
       data: {
         type: 'FeatureCollection',
@@ -82,7 +79,7 @@ const displayDataOnMap = async () => {
       source: 'region',
       paint: {
         'fill-color': {
-          property: 'pothole',
+          property: 'numberOfPothole',
           stops: [
             [0, 'green'],
             [4, 'yellow'],
@@ -132,7 +129,6 @@ const displayDataOnMap = async () => {
       displayDataOnMap(); // 데이터를 지도에 표시하는 함수 호출
     });
 
-    setMap(map);
     return () => map.remove();
   }, []);
 
