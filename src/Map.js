@@ -1,206 +1,195 @@
-import React, { useRef, useEffect, useState, Component } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
-import Legend from './components/Legend';
 import './Map.css';
-// import data from './data.json'
-import pImage from './img/pothole.jpeg'
+import data from './data.json';
 
-mapboxgl.accessToken =
-  'pk.eyJ1IjoibWktZmFzb2wiLCJhIjoiY2xoN3U1ZmNxMDI2eTNybzFlM2doc2M4ayJ9.GcTJmgh7OQSyiwlJ7nl38A';
+mapboxgl.accessToken = 'pk.eyJ1IjoibWktZmFzb2wiLCJhIjoiY2xoN3U1ZmNxMDI2eTNybzFlM2doc2M4ayJ9.GcTJmgh7OQSyiwlJ7nl38A';
 
-// json 데이터를 가져 올 API 주소
-const HTTP_URL = "http://15.164.100.67:9090/api/geotab/search/all";
 
-// 이미지 GET API가 미완성인 관계로 임시로 더미 데이터 사용
-const items = [
-  {
-      url: pImage,
-  },
-  {
-    url: pImage,
-  },
-  {
-    url: pImage,
-  },{
-    url: pImage,
-  },{
-    url: pImage,
-  },{
-    url: pImage,
-  },{
-    url: pImage,
-  },{
-    url: pImage,
-  },{
-    url: pImage,
-  },{
-    url: pImage,
-  },{
-    url: pImage,
-  },
-]
 const Map = () => {
   const options = [
     {
       name: '도로 파손 정도',
       description: '도로 파손 개수에 따른 지표',
-      property: 'numberOfPothole',
+      property: 'pothole',
       stops: [
-        [0, '#f8d5cc'],
-        [3, '#f4bfb6'],
-        [6, '#f1a8a5'],
-        [9, '#ee8f9a'],
-        [12, '#ec739b'],
-        [15, '#dd5ca8'],
-        [18, '#c44cc0'],
-        [21, '#9f43d7'],
-        [24, '#6e40e6']
-      ]
+        [0, 'green'],
+        [4, 'yellow'],
+        [8, 'red'],
+      ],
     },
   ];
+
+
   const mapContainerRef = useRef(null);
+  const [data, setData] = useState([]);
   const [active, setActive] = useState(options[0]);
   const [map, setMap] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [potholeCount, setPotholeCount] = useState(0);
   const [r_name, setRegionName] = useState(null);
+  const [pImg, setPImg] = useState([]);
   const [dialogPosition, setDialogPosition] = useState({ x: 0, y: 0 });
 
-  const openDialog = (count, position, r_name) => {
+  const openDialog = (count, position, r_name, images) => {
     setPotholeCount(count);
     setDialogPosition(position);
-    setRegionName(r_name)
+    setRegionName(r_name);
     setDialogOpen(true);
+    setPImg(Array.isArray(images) ? images : [images]);
   };
 
   const closeDialog = () => {
     setDialogOpen(false);
   };
 
+  const fetchDataFromAPI = async () => {
+  try {
+    const response = await fetch('http://18.207.198.224:8080/api/geotab/search/all', {
+      method: "GET",
+      headers:{
+      'Accept': 'application/json',
+        'Content-Type': 'application/json; charset=utf-8'
+      }
+    } );
+    if (!response.ok) {
+      throw new Error('Failed to fetch data from the API');
+    }
+    const data = await response.json();
+    return data.features; // "data" 부분을 벗겨내서 features 배열 반환
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    return [];
+  }
+};
+
+const displayDataOnMap = async () => {
+  const geojsonData = await fetchDataFromAPI();
+
+  if (map && geojsonData.length > 0) {
+    // GeoJSON 데이터를 지도에 추가
+    map.addSource('custom-data', {
+      type: 'geojson',
+      data: {
+        type: 'FeatureCollection',
+        features: geojsonData,
+      },
+    });
+
+    map.addLayer({
+      id: 'region',
+      type: 'fill',
+      source: 'region',
+      paint: {
+        'fill-color': {
+          property: 'pothole',
+          stops: [
+            [0, 'green'],
+            [4, 'yellow'],
+            [8, 'red'],
+          ],
+        },
+      },
+    });
+
+    map.addLayer({
+      id: 'region-border',
+      type: 'line',
+      source: 'region',
+      paint: {
+        'line-color': '#000000',
+        'line-width': 0.5,
+      },
+    });
+
+    map.on('click', 'region', (e) => {
+      const features = map.queryRenderedFeatures(e.point, { layers: ['region'] });
+
+      if (features.length > 0) {
+        const clickedFeature = features[0];
+        const potholeValue = clickedFeature.properties.pothole;
+        const position = map.unproject(e.point);
+        const pImg = clickedFeature.properties.images;
+        const r_name = clickedFeature.properties.name;
+        openDialog(potholeValue, position, r_name, pImg);
+        console.log(`해당 구역의 포트홀 개수: ${potholeValue}`);
+      }
+    });
+  }
+};
+
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(HTTP_URL);
-        const jsonData = await response.json();
+    const map = new mapboxgl.Map({
+      container: mapContainerRef.current,
+      style: 'mapbox://styles/mapbox/streets-v11',
+      center: [127.0016958, 37.5642135],
+      zoom: 10.0,
+    });
 
-        if (jsonData) {
-          return jsonData.data;
-        }
-      } catch (error) {
-        console.error('Failed to fetch GeoJSON data:', error);
-      }
-    };
+    map.on('load', () => {
+      setMap(map);
+      displayDataOnMap(); // 데이터를 지도에 표시하는 함수 호출
+    });
 
-    const loadMap = async () => {
-      const jsonData = await fetchData();
-      if (jsonData) {
-        const newMap = new mapboxgl.Map({
-          container: mapContainerRef.current,
-          style: 'mapbox://styles/mapbox/streets-v11',
-          center: [127.0016958, 37.5642135],
-          zoom: 10.0,
-        });
+    setMap(map);
+    return () => map.remove();
+  }, []);
 
-        newMap.on('load', () => {
-          newMap.addSource('region', {
-            type: 'geojson',
-            data: jsonData,
-          });
 
-          newMap.addLayer({
-            id: 'region',
-            type: 'fill',
-            source: 'region',
-            paint: {
-              'fill-color': {
-                property: 'numberOfPothole',
-                stops: active.stops,
-              },
-            },
-          });
+  useEffect(() => {
+        paint();
 
-          newMap.on('click', 'region', (e) => {
-            const features = newMap.queryRenderedFeatures(e.point, { layers: ['region'] });
-
-            if (features.length > 0) {
-              const clickedFeature = features[0];
-              const potholeValue = clickedFeature.properties.numberOfPothole;
-              const position = newMap.unproject(e.point);
-              const r_name = clickedFeature.properties.name;
-              openDialog(potholeValue, position, r_name);
-              console.log(`해당 구역의 포트홀 개수: ${potholeValue}`);
-            }
-          });
-
-          setMap(newMap);
-        });
-      }
-    };
-
-    loadMap();
-
-    return () => {
-      if (map) {
-        map.remove();
-      }
-    };
   }, [active]);
 
-  useEffect(() => {
+  const paint = () => {
     if (map) {
       map.setPaintProperty('region', 'fill-color', {
         property: active.property,
         stops: active.stops,
       });
     }
-  }, [active, map]);
+  };
 
   const changeState = (i) => {
     setActive(options[i]);
-    if (map) {
-      map.setPaintProperty('region', 'fill-color', {
-        property: options[i].property,
-        stops: options[i].stops,
-      });
-    }
+    map.setPaintProperty('region', 'fill-color', {
+      property: active.property,
+      stops: active.stops,
+    });
+  };
+
+  const ImgList = ({ url }) => {
+    return (
+      <div>
+        <PotholeImg url={url} />
+      </div>
+    );
+  };
+
+  const PotholeImg = ({ url }) => {
+    return <img src={url} alt="pothole" />;
   };
 
   return (
     <div>
-      <div ref={mapContainerRef} className='map-container' />
-      <Legend active={active} stops={active.stops} />
+      <div ref={mapContainerRef} className="map-container" />
       {dialogOpen && (
         <div className="dialog-overlay">
           <div className="dialog-content" style={{ left: dialogPosition.x, top: dialogPosition.y }}>
             <h3>{r_name}의 도로 현황</h3>
             <p>도로 파손 개수: {potholeCount}</p>
-            {items.map((img) => {
-              return <ImgList url={img.url} key={img.url} />;
-            })}
-            <button className = "dialog-button" onClick={closeDialog}>Close</button>
+            {pImg.map((url, index) => (
+  <ImgList key={index} url={require(`./img/${url}`).default} />
+))}
+            <button className="dialog-button" onClick={closeDialog}>
+              Close
+            </button>
           </div>
         </div>
       )}
     </div>
   );
 };
-
-class ImgList extends Component{
-  render(){
-    return(
-      <div>
-        <PotholeImg url = {this.props.url}/>
-      </div>
-    )
-  }
-}
-
-class PotholeImg extends Component{
-  render(){
-    return(
-      <img src = {this.props.url}/>
-    )
-  }
-}
 
 export default Map;
