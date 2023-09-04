@@ -1,7 +1,6 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import Legend from './components/Legend';
-import Optionsfield from './components/Optionsfield';
 import './Map.css';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoibWktZmFzb2wiLCJhIjoiY2xoN3U1ZmNxMDI2eTNybzFlM2doc2M4ayJ9.GcTJmgh7OQSyiwlJ7nl38A';
@@ -31,14 +30,14 @@ const Map = () => {
   const [map, setMap] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [potholeCount, setPotholeCount] = useState(0);
-  const [r_name, setRegionName] = useState(null);
+  const [r_name, setregionName] = useState(null);
   const [pImg, setPImg] = useState([]);
   const [dialogPosition, setDialogPosition] = useState({ x: 0, y: 0 });
 
   const openDialog = (count, position, r_name, images) => {
     setPotholeCount(count);
     setDialogPosition(position);
-    setRegionName(r_name);
+    setregionName(r_name);
     setDialogOpen(true);
     setPImg(Array.isArray(images) ? images : [images]);
   };
@@ -110,23 +109,16 @@ const Map = () => {
         source: 'region',
         paint: {
           'fill-color': {
-            property: "numberOfPothole",
-            stops: [
-              [0, '#f4bfb6'],
-              [4, '#ec739b'],
-              [8, '#6e40e6'],
-            ]
+            property: active.property,
+            stops:  
+              active.stops
           },
         },
       });
 
       map.setPaintProperty('region', 'fill-color', {
-        property: "numberOfPothole",
-        stops: [
-          [0, '#f4bfb6'],
-          [4, '#ec739b'],
-          [8, '#6e40e6'],
-        ],
+        property: active.property,
+        stops: active.stops
       });
 
       map.addLayer({
@@ -137,11 +129,6 @@ const Map = () => {
           'line-color': '#ffffff',
           'line-width': 0.5,
         },
-      });
-
-      map.setPaintProperty('region', 'fill-color', {
-        property: active.property,
-        stops: active.stops,
       });
 
       map.on('click', 'region', async (e) => {
@@ -177,14 +164,6 @@ const Map = () => {
     paint();
   }, [active, paint]);
   
-
-  const ImgList = ({ url }) => {
-    return (
-      <div>
-        <PotholeImg url={url} />
-      </div>
-    );
-  };
 
   const PotholeImg = ({ url }) => {
     return <img src={url} alt="pothole" />;
