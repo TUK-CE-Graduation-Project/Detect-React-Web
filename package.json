@@ -41,5 +41,10 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://18.207.198.224:8080"
+  "proxy": "http://18.207.198.224:8080",
+  "devDependencies": {
+    "@babel/core": "^7.22.15",
+    "@babel/plugin-transform-runtime": "^7.22.15",
+    "@babel/preset-env": "^7.22.15"
+  }
 }
