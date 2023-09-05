@@ -48,11 +48,10 @@ const Map = () => {
 
   const fetchDataFromAPI = async () => {
     try {
-      const res = await fetch('/api/geotab/search/all', {
-        'Accept-Charset': 'utf-8'
-      });
+      const res = await fetch('/api/geotab/search/all');
       const { data } = await res.json();
 
+      console.log(data);
       if (!res.ok) {
         throw new Error('Failed to fetch data from the API');
       }
