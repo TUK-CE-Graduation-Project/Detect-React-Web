@@ -98,6 +98,10 @@ const Map = () => {
           type: 'FeatureCollection',
           features: geojsonData.map((item) => ({ // geometry 필드 [] 한번 더 감싸야 함
             ...item,
+            properties: {
+              ...item.properties,
+              numberOfPothole: parseInt(item.properties.numberOfPothole, 10),
+            },
             geometry: { ...item.geometry, coordinates: [item.geometry.coordinates] },
           })),
         },
